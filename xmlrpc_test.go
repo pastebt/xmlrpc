@@ -97,6 +97,9 @@ func marshalString(methodName string, args ...interface{}) (string, error) {
 func parseAndCheck(t *testing.T, methodName string, expVal interface{},
 	xmlStr string) {
 	name, val, err, fault := UnmarshalString(xmlStr)
+    if val != nil {
+        val = extractParams(val.([]interface{}))
+    }
 	if err != nil {
 		t.Fatalf("Returned error %s", err)
 	} else if fault != nil {
@@ -129,6 +132,9 @@ func parseAndCheck(t *testing.T, methodName string, expVal interface{},
 func parseUnimplemented(t *testing.T, methodName string, expVal interface{}) {
 	xmlStr := wrapMethod(methodName, expVal)
 	name, val, err, fault := UnmarshalString(xmlStr)
+    if val != nil {
+        val = extractParams(val.([]interface{}))
+    }
 	if err == nil {
 		t.Fatalf("Unimplemented type didn't return an error")
 	} else if !strings.Contains(err.Error(), "nimplemented") {

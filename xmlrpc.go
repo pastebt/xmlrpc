@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-    "os"
+    //"os"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -37,8 +37,8 @@ func (f *Fault) String() string {
 func extractParams(v []interface{}) interface{} {
 	if len(v) == 0 {
 		return nil
-	//} else if len(v) == 1 {
-	//	return v[0]
+	} else if len(v) == 1 {
+		return v[0]
 	}
 
 	return v
@@ -488,7 +488,7 @@ func getData(p *xml.Decoder, tok *xmlToken) (interface{}, error) {
 		return nil, nil
 	case tokenString:
 		valStr, err = getText(p)
-        fmt.Fprintf(os.Stderr, "valStr = [%v]", valStr)
+        //fmt.Fprintf(os.Stderr, "valStr = [%v]", valStr)
 		if err != nil {
 			return nil, err
 		}
@@ -553,8 +553,9 @@ func Unmarshal(r io.Reader) (string, interface{}, error, *Fault) {
 			return "", nil, perr, nil
 		}
 	}
-fmt.Fprintf(os.Stderr, "params = %v\n", params)
-	return methodName, extractParams(params), nil, fault
+  //fmt.Fprintf(os.Stderr, "params = %v\n", params)
+	//return methodName, extractParams(params), nil, fault
+	return methodName, params, nil, fault
 }
 
 // Translate an XML string into a local data object

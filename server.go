@@ -5,7 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
+	//"io/ioutil"
 	"net/http"
 	"os"
 	"reflect"
@@ -104,13 +104,13 @@ const (
 
 // handle an XML-RPC request
 func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
-  b, _ := ioutil.ReadAll(req.Body)
-  body := string(b)
-  fmt.Fprintf(os.Stderr, body)
-  methodName, params, err, fault := UnmarshalString(body)
-  fmt.Fprintf(os.Stderr, "ServeHTTP params = %v\n", params)
+  //b, _ := ioutil.ReadAll(req.Body)
+  //body := string(b)
+  //fmt.Fprintf(os.Stderr, body)
+  //methodName, params, err, fault := UnmarshalString(body)
+  //fmt.Fprintf(os.Stderr, "ServeHTTP params = %v\n", params)
 
-	//methodName, params, err, fault := Unmarshal(req.Body)
+	methodName, params, err, fault := Unmarshal(req.Body)
 
 	if err != nil {
 		writeFault(resp, errNotWellFormed,
@@ -128,7 +128,7 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		args := make([]interface{}, 1, 1)
 		args[0] = params
 	}
-  fmt.Fprintf(os.Stderr, "%v", args)
+  //fmt.Fprintf(os.Stderr, "%v", args)
 
 	var mData *methodData
 
