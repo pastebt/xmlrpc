@@ -580,6 +580,31 @@ func wrapArray(w io.Writer, val reflect.Value) error {
 	return nil
 }
 
+// translate an map[string]interface{} into XML
+func wrapMap(w io.Writer, val reflect.Value) error {
+    ks := val.MapKeys()
+    if len(ks) < 1 {
+        //return fmt.Errorf("Empty Map")
+        fmt.Fprintf(w, "<struct>\n</struct>")
+        return nil
+    }
+    if ks[0].Kind() != reflect.String {
+        return fmt.Errorf("Only support map[string]interface{}, got %v", val)
+    }
+    fmt.Fprintf(w, "<struct>\n")
+    for _, k := range ks {
+        fmt.Fprintf(w, "<member>\n")
+        fmt.Fprintf(w, "<name>%s</name>\n", k)
+        fmt.Fprintf(w, "<value>")
+        ret := wrapValue(w, val.MapIndex(k))
+        if ret != nil { return ret }
+        fmt.Fprintf(w, "</value>\n</member>\n")
+    }
+    fmt.Fprintf(w, "</struct>")
+    return nil
+    //return fmt.Errorf("Not wrapping type %v (%v)", val.Kind().String(), val)
+}
+
 // translate a parameter into XML
 func wrapParam(w io.Writer, i int, xval interface{}) error {
 	var valStr string
@@ -650,7 +675,8 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 	case reflect.Interface:
 		isError = true
 	case reflect.Map:
-		isError = true
+		//isError = true
+		return wrapMap(w, val)
 	case reflect.Ptr:
 		isError = true
 	case reflect.Slice:

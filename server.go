@@ -189,7 +189,7 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 			methodName, err))
 		return
 	}
-
+  fmt.Fprintf(os.Stderr, buf.String())
 	buf.WriteTo(resp)
 }
 
