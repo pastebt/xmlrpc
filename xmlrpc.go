@@ -646,14 +646,14 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		fmt.Fprintf(w, "<int>%d</int>", val.Int())
 	case reflect.String:
-		//fmt.Fprintf(w, "<string>%s</string>", val.String())
-		fmt.Fprintf(w, "<string>")
+        //fmt.Fprintf(w, "<string>%s</string>", val.String())
+        fmt.Fprintf(w, "<string>")
         err := xml.EscapeText(w, []byte(val.String()))
         if err != nil {
-		    return fmt.Errorf("Failed to wrapping type %v (%v)",
-                              val.Kind().String(), val)
+            return fmt.Errorf("Failed to wrapping type %v (%v), err=%s",
+                              val.Kind().String(), val, err.Error())
         }
-		fmt.Fprintf(w, "</string>")
+        fmt.Fprintf(w, "</string>")
 	case reflect.Uint:
 		isError = true
 	case reflect.Uint8:
