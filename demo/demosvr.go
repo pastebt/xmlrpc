@@ -13,7 +13,7 @@ type SO struct {
 }
 
 func (so *SO)SayHello(who string) string{
-    return fmt.Sprintf("%s say Hello to %s", so.name, who)
+    return fmt.Sprintf("%s say <>& Hello to %s", so.name, who)
 }
 
 func (so *SO)RetStrs(who string) (a, b string){
