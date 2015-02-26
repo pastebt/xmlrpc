@@ -5,33 +5,13 @@ Most code and doc fork from https://code.google.com/p/go-xmlrpc/
 Package xmlrpc provides a rudimentary interface for sending and receiving
 XML-RPC requests.
 
-Clients are created with xmlrpc.NewClient(host string, int port):
+An XML-RPC server is:
 
-	client, err := xmlrpc.NewClient("localhost", 1234)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot create XML-RPC client: %v\n", err)
-		return
-	}
+    h := gxr.NewHandler()
+    h.Register(&SO{"MyName"}, nil, false)
+    http.Handle("/rpc", h)
+    http.ListenAndServe(":2345", nil)
 
-Remote procedure calls are made using client.RPCCall, whose parameters are
-the name of the remote procedure along with any needed parameters:
-
-	reply, cerr, fault := client.RPCCall("SetThing", 123, "abc")
-	if cerr != nil {
-		fmt.Fprintf(os.Stderr, "Cannot call SetThing: %v\n", cerr)
-		return
-	} else if fault != nil {
-		fmt.Fprintf(os.Stderr, "Exception from SetThing: %v\n", fault)
-		return
-	}
-
-	fmt.Printf("SetThing(123, \"abc\") returned %v\n", reply)
-
-(Note that parameters are optional so client.RPCCall("foo") is valid code.)
-
-An XML-RPC server is created with xmlrpc.StartServer(port int):
-
-	srvr := xmlrpc.StartServer(5678)
 
 Procedures are provided by any objects registered with the server.
 
@@ -69,3 +49,29 @@ character after 'RPC' to lowercase, so "GetSize" would be ignored and
 
 		return buf.String()
 	}
+
+Clients are created with xmlrpc.NewClient(host string, int port):
+
+	client, err := xmlrpc.NewClient("localhost", 1234)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot create XML-RPC client: %v\n", err)
+		return
+	}
+
+Remote procedure calls are made using client.RPCCall, whose parameters are
+the name of the remote procedure along with any needed parameters:
+
+	reply, cerr, fault := client.RPCCall("SetThing", 123, "abc")
+	if cerr != nil {
+		fmt.Fprintf(os.Stderr, "Cannot call SetThing: %v\n", cerr)
+		return
+	} else if fault != nil {
+		fmt.Fprintf(os.Stderr, "Exception from SetThing: %v\n", fault)
+		return
+	}
+
+	fmt.Printf("SetThing(123, \"abc\") returned %v\n", reply)
+
+(Note that parameters are optional so client.RPCCall("foo") is valid code.)
+
+
