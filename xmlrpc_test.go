@@ -47,8 +47,11 @@ func getTypeString(val interface{}, noSpaces bool) string {
 		return fmt.Sprintf("%s<double>%s</double>%s", pre, fStr, post)
 	case int:
 		return fmt.Sprintf("%s<int>%d</int>%s", pre, v, post)
+    case []byte:
+        return string(v)
 	case string:
-		return v
+		//return v
+		return fmt.Sprintf("%s<string>%s</string>%s", pre, val, post)
 	case (map[string]interface{}):
 		valStr := fmt.Sprintf("%s<struct>", preSpace)
 		for mkey, mval := range v {
@@ -238,6 +241,21 @@ func TestMakeRequestInt(t *testing.T) {
 	}
 }
 
+func TestMakeRequestString(t *testing.T) {
+	expVal := "abcd1234"
+	methodName := "foo"
+
+	xmlStr, err := marshalString(methodName, expVal)
+	if err != nil {
+		t.Fatalf("Returned error %s", err)
+	}
+
+	expStr := wrapMethod(methodName, expVal)
+	if xmlStr != expStr {
+		t.Fatalf("Returned \"%s\", not \"%s\"", xmlStr, expStr)
+	}
+}
+
 func TestMakeRequestArray(t *testing.T) {
 	expVal := []int{1, 2, 3, 4}
 	methodName := "foo"
@@ -301,7 +319,7 @@ func XXXTestParseResponseArray(t *testing.T) {
 func TestParseResponseBase64(t *testing.T) {
 	tnm := "base64"
 	val := "eW91IGNhbid0IHJlYWQgdGhpcyE"
-	parseUnimplemented(t, "", fmt.Sprintf("<%s>%v</%s>", tnm, val, tnm))
+	parseUnimplemented(t, "", []byte(fmt.Sprintf("<%s>%v</%s>", tnm, val, tnm)))
 }
 
 func TestParseResponseBool(t *testing.T) {
@@ -371,7 +389,7 @@ func TestParseResponseI4(t *testing.T) {
 	tnm := "i4"
 	val := -433221
 
-	xmlStr := wrapMethod("", fmt.Sprintf("<%s>%v</%s>", tnm, val, tnm))
+	xmlStr := wrapMethod("", []byte(fmt.Sprintf("<%s>%v</%s>", tnm, val, tnm)))
 	parseAndCheck(t, "", val, xmlStr)
 }
 
