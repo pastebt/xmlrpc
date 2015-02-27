@@ -7,7 +7,14 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"encoding/xml"
 )
+
+func xmlEscapeString(src string) string {
+	buf := bytes.NewBufferString("")
+    xml.EscapeText(buf, []byte(src))
+    return buf.String()
+}
 
 func getTypeString(val interface{}, noSpaces bool) string {
 	preSpace := "\n		"
@@ -51,7 +58,7 @@ func getTypeString(val interface{}, noSpaces bool) string {
         return string(v)
 	case string:
 		//return v
-		return fmt.Sprintf("%s<string>%s</string>%s", pre, val, post)
+		return fmt.Sprintf("%s<string>%s</string>%s", pre, xmlEscapeString(val.(string)), post)
 	case (map[string]interface{}):
 		valStr := fmt.Sprintf("%s<struct>", preSpace)
 		for mkey, mval := range v {
@@ -242,7 +249,7 @@ func TestMakeRequestInt(t *testing.T) {
 }
 
 func TestMakeRequestString(t *testing.T) {
-	expVal := "abcd1234"
+	expVal := "abcd<>?1234"
 	methodName := "foo"
 
 	xmlStr, err := marshalString(methodName, expVal)
