@@ -51,7 +51,7 @@ character after 'RPC' to lowercase, so "GetSize" would be ignored and
 Clients are created with xmlrpc.NewClient(host string, int port):
 
 ```go
-    client, err := xmlrpc.NewClient("localhost", 1234)
+    client, err := xmlrpc.NewClient("localhost", 2345)
     if err != nil {
         fmt.Fprintf(os.Stderr, "Cannot create XML-RPC client: %v\n", err)
         return
