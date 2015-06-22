@@ -53,9 +53,14 @@ func (so *SO)RetStruct(who string) (ret TST) {
     return ret
 }
 
+func ttt(in string) string {
+    return "haha " + in
+}
+
 func main() {
     h := gxr.NewHandler()
     h.Register(&SO{"MyName"}, nil, false)
+    h.RegFunc(ttt, "", false)
     http.Handle("/rpc", h)
     http.ListenAndServe(":2345", nil)
 }

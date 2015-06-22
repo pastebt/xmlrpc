@@ -1,20 +1,23 @@
 package xmlrpc
 
 import (
-	"bytes"
-	"encoding/xml"
-	"fmt"
-	"io"
-	//"io/ioutil"
-	"net/http"
 	"os"
+	"io"
+	"fmt"
+	"bytes"
+	//"io/ioutil"
+    "runtime"
 	"reflect"
 	"strings"
+	"net/http"
+	"encoding/xml"
 )
 
 type methodData struct {
 	obj       interface{}
-	method    reflect.Method
+	//method    reflect.Method
+    ftype       reflect.Type    // function/method type
+    fvalue      reflect.Value   // function/method value
 	padParams bool
 }
 
@@ -55,13 +58,29 @@ func (h *Handler) Register(obj interface{}, mapper func(string) string,
 			}
 		}
 
-		md := &methodData{obj: obj, method: m, padParams: padParams}
+		md := &methodData{obj: obj, ftype: m.Type, fvalue: m.Func, padParams: padParams}
 		h.methods[name] = md
 		h.methods[strings.ToLower(name)] = md
 	}
 
 	return nil
 }
+
+
+// register a func, if name is "", then use func name
+func (h *Handler) RegFunc(obj interface{}, name string, padParams bool) error {
+	vo := reflect.ValueOf(obj)
+    if vo.Kind() != reflect.Func {
+        panic("RegisterFunc only register function")
+    }
+    md := &methodData{obj: nil, ftype: vo.Type(), fvalue: vo, padParams: padParams}
+    if name == "" {
+        name = runtime.FuncForPC(vo.Pointer()).Name()[5:]
+    }
+    h.methods[name] = md
+    return nil
+}
+
 
 var faultType = reflect.TypeOf((*Fault)(nil))
 
@@ -138,9 +157,11 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	expArgs := mData.method.Type.NumIn()
-	if len(args)+1 != expArgs {
-		if !mData.padParams || len(args)+1 > expArgs {
+	expArgs := mData.ftype.NumIn()
+    x := 0
+    if mData.obj != nil { x = 1 }
+	if len(args) + x != expArgs {
+		if !mData.padParams || len(args) + x > expArgs {
 			writeFault(resp, errInvalidParams,
 				fmt.Sprintf("Bad number of parameters for method \"%s\","+
 					" (%d != %d)", methodName, len(args), expArgs-1))
@@ -150,25 +171,28 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 
 	vals := make([]reflect.Value, expArgs, expArgs)
 
-	vals[0] = reflect.ValueOf(mData.obj)
-	for i := 1; i < expArgs; i++ {
+    i := x
+    if x == 1 {
+        vals[0] = reflect.ValueOf(mData.obj)
+    }
+	for ; i < expArgs; i++ {
 		if mData.padParams && i >= len(args) {
-			vals[i] = reflect.Zero(mData.method.Type.In(i))
+			vals[i] = reflect.Zero(mData.ftype.In(i))
 			continue
 		}
 
-		if !reflect.TypeOf(args[i-1]).ConvertibleTo(mData.method.Type.In(i)) {
+		if !reflect.TypeOf(args[i-x]).ConvertibleTo(mData.ftype.In(i)) {
 			writeFault(resp, errInvalidParams,
 				fmt.Sprintf("Bad %s argument #%d (%v should be %v)",
-					methodName, i-1, reflect.TypeOf(args[i-1]),
-					mData.method.Type.In(i)))
+					methodName, i-x, reflect.TypeOf(args[i-x]),
+					mData.ftype.In(i)))
 			return
 		}
 
-		vals[i] = reflect.ValueOf(args[i-1])
+		vals[i] = reflect.ValueOf(args[i-x])
 	}
 
-	rtnVals := mData.method.Func.Call(vals)
+	rtnVals := mData.fvalue.Call(vals)
 
 	if len(rtnVals) == 1 && reflect.TypeOf(rtnVals[0].Interface()) == faultType {
 		if fault, ok := rtnVals[0].Interface().(*Fault); ok {

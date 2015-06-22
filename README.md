@@ -75,3 +75,5 @@ the name of the remote procedure along with any needed parameters:
 (Note that parameters are optional so client.RPCCall("foo") is valid code.)
 
 
+You also can register a function using RegFunc(f interface, name string, padParams bool)
+Which will register f, with name, if name is "", thhem use name of f
