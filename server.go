@@ -71,10 +71,11 @@ func (h *Handler) Register(obj interface{}, mapper func(string) string,
 func (h *Handler) RegFunc(obj interface{}, name string, padParams bool) error {
 	vo := reflect.ValueOf(obj)
     if vo.Kind() != reflect.Func {
-        panic("RegisterFunc only register function")
+        panic("RegFunc only register function")
     }
     md := &methodData{obj: nil, ftype: vo.Type(), fvalue: vo, padParams: padParams}
     if name == "" {
+        // runtime.FuncForPC always return pkg.func_name, so we cut prefix "main."
         name = runtime.FuncForPC(vo.Pointer()).Name()[5:]
     }
     h.methods[name] = md

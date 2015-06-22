@@ -5,7 +5,7 @@ Most code and doc fork from https://code.google.com/p/go-xmlrpc/
 Package xmlrpc provides a rudimentary interface for sending and receiving
 XML-RPC requests.
 
-Procedures are provided by any objects registered with the server.
+Procedures can be provided by any objects registered with the server.
 An XML-RPC server is:
 
 ```go
@@ -75,4 +75,4 @@ the name of the remote procedure along with any needed parameters:
 
 
 You also can register a function using RegFunc(f interface, name string, padParams bool)
-Which will register f, with name, if name is "", thhem use name of f
+Which will register f, with name, if name is "", then use name of f, check the demo
