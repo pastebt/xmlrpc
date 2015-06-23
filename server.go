@@ -122,6 +122,8 @@ const (
 	errInternal      = -32603
 )
 
+var istype = reflect.TypeOf(make([]interface{}, 0))
+
 // handle an XML-RPC request
 func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
   //b, _ := ioutil.ReadAll(req.Body)
@@ -161,7 +163,11 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 	expArgs := mData.ftype.NumIn()
     x := 0
     if mData.obj != nil { x = 1 }
-	if len(args) + x != expArgs {
+
+    // flag to support func(...interface{})
+    y := mData.ftype.In(expArgs - 1) == istype
+
+	if len(args) + x != expArgs && !y {
 		if !mData.padParams || len(args) + x > expArgs {
 			writeFault(resp, errInvalidParams,
 				fmt.Sprintf("Bad number of parameters for method \"%s\","+
@@ -177,10 +183,18 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
         vals[0] = reflect.ValueOf(mData.obj)
     }
 	for ; i < expArgs; i++ {
-		if mData.padParams && i >= len(args) {
+		if (mData.padParams || (y && i == expArgs - 1)) && i >= len(args) {
 			vals[i] = reflect.Zero(mData.ftype.In(i))
 			continue
 		}
+
+        if i == expArgs - 1 && y {
+            vals[i] = reflect.ValueOf(args[i])
+            for _, a := range args[i+1:] {
+                vals = append(vals, reflect.ValueOf(a))
+            }
+            break
+        }
 
 		if !reflect.TypeOf(args[i-x]).ConvertibleTo(mData.ftype.In(i)) {
 			writeFault(resp, errInvalidParams,

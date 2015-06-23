@@ -57,10 +57,16 @@ func ttt(in string) string {
     return "haha " + in
 }
 
+func mmm(in string, cc ...interface{}) string {
+    return "haha " + in + "cc: " + fmt.Sprintf("%v", cc)
+}
+
 func main() {
     h := gxr.NewHandler()
     h.Register(&SO{"MyName"}, nil, false)
     h.RegFunc(ttt, "", false)
+    h.RegFunc(mmm, "", false)
     http.Handle("/rpc", h)
     http.ListenAndServe(":2345", nil)
+    println("I am here")
 }
