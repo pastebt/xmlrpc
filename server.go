@@ -13,12 +13,17 @@ import (
 	"encoding/xml"
 )
 
+
+type DFT []interface{}
+
+
 type methodData struct {
 	obj       interface{}
 	//method    reflect.Method
     ftype       reflect.Type    // function/method type
     fvalue      reflect.Value   // function/method value
-	padParams bool
+	padParams   bool
+    dft         DFT
 }
 
 // Map from XML-RPC procedure names to Go methods
@@ -68,12 +73,12 @@ func (h *Handler) Register(obj interface{}, mapper func(string) string,
 
 
 // register a func, if name is "", then use func name
-func (h *Handler) RegFunc(obj interface{}, name string, padParams bool) error {
+func (h *Handler) RegFunc(obj interface{}, name string, dft DFT) error {
 	vo := reflect.ValueOf(obj)
     if vo.Kind() != reflect.Func {
         panic("RegFunc only register function")
     }
-    md := &methodData{obj: nil, ftype: vo.Type(), fvalue: vo, padParams: padParams}
+    md := &methodData{obj: nil, ftype: vo.Type(), fvalue: vo, dft: dft}
     if name == "" {
         // runtime.FuncForPC always return pkg.func_name, so we cut prefix "main."
         name = runtime.FuncForPC(vo.Pointer()).Name()[5:]
@@ -167,11 +172,14 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     // flag to support func(...interface{})
     y := mData.ftype.In(expArgs - 1) == istype
 
-	if len(args) + x != expArgs && !y {
+    dl := 0
+    if mData.dft != nil { dl = len(mData.dft) }
+
+	if len(args) + x != expArgs && !y && len(args) + x + dl < expArgs {
 		if !mData.padParams || len(args) + x > expArgs {
 			writeFault(resp, errInvalidParams,
 				fmt.Sprintf("Bad number of parameters for method \"%s\","+
-					" (%d != %d)", methodName, len(args), expArgs-1))
+					" (%d != %d)", methodName, len(args) + x, expArgs-1))
 			return
 		}
 	}
@@ -182,9 +190,14 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     if x == 1 {
         vals[0] = reflect.ValueOf(mData.obj)
     }
+
 	for ; i < expArgs; i++ {
-		if (mData.padParams || (y && i == expArgs - 1)) && i >= len(args) {
-			vals[i] = reflect.Zero(mData.ftype.In(i))
+		if (mData.padParams || (y && i == expArgs - 1) || dl > 0) && i >= len(args) {
+            if dl > 0 && dl + i >= expArgs {
+                vals[i] = reflect.ValueOf(mData.dft[dl - expArgs + i])
+            } else {
+                vals[i] = reflect.Zero(mData.ftype.In(i))
+            }
 			continue
 		}
 
