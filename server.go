@@ -29,6 +29,7 @@ type methodData struct {
 // Map from XML-RPC procedure names to Go methods
 type Handler struct {
 	methods map[string]*methodData
+    logf    func(req *http.Request, code int, msg string)
 }
 
 // create a new handler mapping XML-RPC procedure names to Go methods
@@ -37,6 +38,11 @@ func NewHandler() *Handler {
 	h.methods = make(map[string]*methodData)
 	return h
 }
+
+func (h *Handler)SetLogf(logf func(*http.Request, int, string)) {
+    h.logf = logf
+}
+
 
 // register all methods associated with the Go object, passing them
 // through the name mapper if one is supplied
@@ -114,10 +120,10 @@ func writeFault(out io.Writer, code int, msg string) {
 </methodResponse>`)
 
 	// XXX dump the error to Stderr for now
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot write fault#%d(%s): %v\n", code, msg,
-			err)
-	}
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Cannot write fault#%d(%s): %v\n",
+                    code, msg, err)
+    }
 }
 
 
@@ -196,11 +202,13 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 
     methodName, params, err, fault := Unmarshal(req.Body)
     if err != nil {
-        writeFault(resp, errNotWellFormed,
-                   fmt.Sprintf("Unmarshal error: %v", err))
+        msg := fmt.Sprintf("Unmarshal error: %v", err)
+        writeFault(resp, errNotWellFormed, msg)
+        if h.logf != nil { h.logf(req, errNotWellFormed, msg) }
         return
     } else if fault != nil {
         writeFault(resp, fault.Code, fault.Msg)
+        if h.logf != nil { h.logf(req, fault.Code, fault.Msg) }
         return
 	}
 
@@ -217,8 +225,9 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     var mData *methodData
 
     if mData, ok = h.methods[methodName]; !ok {
-        writeFault(resp, errUnknownMethod,
-                   fmt.Sprintf("Unknown method \"%s\"", methodName))
+        msg := fmt.Sprintf("Unknown method \"%s\"", methodName)
+        writeFault(resp, errUnknownMethod, msg)
+        if h.logf != nil { h.logf(req, errUnknownMethod, msg) }
         return
     }
 
@@ -226,15 +235,20 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     vals, f := mData.getVals(methodName, args, req)
     if f != nil {
         writeFault(resp, f.Code, f.Msg)
+        if h.logf != nil { h.logf(req, f.Code, f.Msg) }
         return
     }
 
+    if h.logf != nil {
+        h.logf(req, 0, fmt.Sprintf("call method %v, input %v", methodName, vals))
+    }
     // exec function
     rtnVals := mData.fvalue.Call(vals)
 
     if len(rtnVals) == 1 && reflect.TypeOf(rtnVals[0].Interface()) == faultType {
         if fault, ok := rtnVals[0].Interface().(*Fault); ok {
             writeFault(resp, fault.Code, fault.Msg)
+            if h.logf != nil { h.logf(req, fault.Code, fault.Msg) }
             return
         }
     }
@@ -247,11 +261,12 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     buf := bytes.NewBufferString("")
     err = marshalArray(buf, "", mArray)
     if err != nil {
-        writeFault(resp, errInternal,
-                   fmt.Sprintf("Failed to marshal %s: %v", methodName, err))
+        msg := fmt.Sprintf("Failed to marshal %s: %v", methodName, err)
+        writeFault(resp, errInternal, msg)
+        if h.logf != nil { h.logf(req, errInternal, msg) }
         return
     }
-    fmt.Fprintf(os.Stderr, buf.String())
+    //fmt.Fprintf(os.Stderr, buf.String())
     buf.WriteTo(resp)
 }
 

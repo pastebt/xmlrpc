@@ -67,12 +67,18 @@ func ddd(in string, cc bool) string {
 
 
 func rrr(req *http.Request, in string, cc bool) string {
-    return fmt.Sprintf("remote ip=%v, in=%v, cc=%v", req.RemoteAddr, in, cc)
+    return fmt.Sprintf("remote addr=%v, in=%v, cc=%v", req.RemoteAddr, in, cc)
+}
+
+
+func l(req *http.Request, code int, msg string) {
+    fmt.Printf("remote addr=%v, code=%v, msg=%v\n", req.RemoteAddr, code, msg)
 }
 
 
 func main() {
     h := gxr.NewHandler()
+    h.SetLogf(l)
     s := SO{"MyName"}
     h.Register(&s, nil, false)
     h.RegFunc(ttt, "", nil)
