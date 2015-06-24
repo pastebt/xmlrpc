@@ -650,19 +650,17 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 
 	switch val.Kind() {
 	case reflect.Bool:
-		var bval int
+		 bval := 0
 		if val.Bool() {
 			bval = 1
-		} else {
-			bval = 0
 		}
 		fmt.Fprintf(w, "<boolean>%d</boolean>", bval)
-	case reflect.Float32:
-		fmt.Fprintf(w, "<double>%f</double>", val.Float())
-	case reflect.Float64:
+	case reflect.Float32, reflect.Float64:
 		fmt.Fprintf(w, "<double>%f</double>", val.Float())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		fmt.Fprintf(w, "<int>%d</int>", val.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		fmt.Fprintf(w, "<int>%d</int>", val.Uint())
 	case reflect.String:
         //fmt.Fprintf(w, "<string>%s</string>", val.String())
         fmt.Fprintf(w, "<string>")
@@ -672,16 +670,16 @@ func wrapValue(w io.Writer, val reflect.Value) error {
                               val.Kind().String(), val, err.Error())
         }
         fmt.Fprintf(w, "</string>")
-	case reflect.Uint:
-		isError = true
-	case reflect.Uint8:
-		isError = true
-	case reflect.Uint16:
-		isError = true
-	case reflect.Uint32:
-		isError = true
-	case reflect.Uint64:
-		isError = true
+	//case reflect.Uint:
+	//	isError = true
+	//case reflect.Uint8:
+	//	isError = true
+	//case reflect.Uint16:
+	//	isError = true
+	//case reflect.Uint32:
+	//	isError = true
+	//case reflect.Uint64:
+	//	isError = true
 	case reflect.Uintptr:
 		isError = true
 	case reflect.Complex64:
@@ -689,10 +687,7 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 	case reflect.Complex128:
 		isError = true
 	case reflect.Array:
-		aerr := wrapArray(w, val)
-		if aerr != nil {
-			return aerr
-		}
+		return wrapArray(w, val)
 	case reflect.Chan:
 		isError = true
 	case reflect.Func:
@@ -706,10 +701,7 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 	case reflect.Ptr:
 		isError = true
 	case reflect.Slice:
-		aerr := wrapArray(w, val)
-		if aerr != nil {
-			return aerr
-		}
+		return wrapArray(w, val)
 	case reflect.Struct:
 		if timeType == nil {
 			timeType = reflect.TypeOf((*time.Time)(nil)).Elem()
