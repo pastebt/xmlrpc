@@ -65,6 +65,12 @@ func ddd(in string, cc bool) string {
     return fmt.Sprintf("in=%v, cc=%v", in, cc)
 }
 
+
+func rrr(req *http.Request, in string, cc bool) string {
+    return fmt.Sprintf("remote ip=%v, in=%v, cc=%v", req.RemoteAddr, in, cc)
+}
+
+
 func main() {
     h := gxr.NewHandler()
     s := SO{"MyName"}
@@ -72,6 +78,7 @@ func main() {
     h.RegFunc(ttt, "", nil)
     h.RegFunc(mmm, "", nil)
     h.RegFunc(ddd, "", gxr.DFT{true})
+    h.RegFunc(rrr, "", gxr.DFT{true})
     h.RegFunc(s.SayHello, "SayHello2", nil)
     http.Handle("/rpc", h)
     panic(http.ListenAndServe(":2345", nil))
