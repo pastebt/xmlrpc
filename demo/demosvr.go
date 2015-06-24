@@ -28,10 +28,10 @@ func (so *SO)RetIntStr(who string) (i int, s string) {
     return
 }
 
-func (so *SO)RetMapIS(who string) (ret map[int]string) {
-    ret = make(map[int]string)
-    ret[int(who[0])] = who[2:]
-    ret[int(who[1])] = who[3:]
+func (so *SO)RetMapSI(who string) (ret map[string]int) {
+    ret = make(map[string]int)
+    ret[who[1:]] = int(who[0])
+    ret[who[2:]] = int(who[1])
     return
 }
 
@@ -46,6 +46,7 @@ type TST struct {
     Name string
     Addr string
 }
+
 func (so *SO)RetStruct(who string) (ret TST) {
     ret = TST{}
     ret.Name = who

@@ -605,6 +605,24 @@ func wrapMap(w io.Writer, val reflect.Value) error {
     //return fmt.Errorf("Not wrapping type %v (%v)", val.Kind().String(), val)
 }
 
+
+// translate an map[string]interface{} into XML
+func wrapStruct(w io.Writer, val reflect.Value) error {
+    fmt.Fprintf(w, "<struct>\n")
+    for i := 0; i < val.NumField(); i++ {
+        f := val.Type().Field(i)
+        fmt.Fprintf(w, "<member>\n")
+        fmt.Fprintf(w, "<name>%s</name>\n", f.Name)
+        fmt.Fprintf(w, "<value>")
+        ret := wrapValue(w, val.Field(i))
+        if ret != nil { return ret }
+        fmt.Fprintf(w, "</value>\n</member>\n")
+    }
+    fmt.Fprintf(w, "</struct>")
+    return nil
+}
+
+
 // translate a parameter into XML
 func wrapParam(w io.Writer, i int, xval interface{}) error {
 	var valStr string
@@ -697,7 +715,8 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 		}
 
 		if !val.Type().ConvertibleTo(timeType) {
-			isError = true
+			//isError = true
+            return wrapStruct(w, val)
 		} else {
 			method := val.MethodByName("Format")
 			params := []reflect.Value{reflect.ValueOf(ISO8601_LAYOUT)}

@@ -263,7 +263,7 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     if err != nil {
         msg := fmt.Sprintf("Failed to marshal %s: %v", methodName, err)
         writeFault(resp, errInternal, msg)
-        if h.logf != nil { h.logf(req, errInternal, msg) }
+        if h.logf != nil { h.logf(req, errInternal, "ouput: " + msg) }
         return
     }
     //fmt.Fprintf(os.Stderr, buf.String())
