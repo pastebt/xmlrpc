@@ -35,6 +35,13 @@ func (so *SO)RetMapSI(who string) (ret map[string]int) {
     return
 }
 
+func (so *SO)RetMapSIF(who string) (ret map[string]interface{}) {
+    ret = make(map[string]interface{})
+    ret[who[1:]] = int(who[0])
+    ret[who[2:]] = who
+    return
+}
+
 func (so *SO)RetMapSS(who string) (ret map[string]string) {
     ret = make(map[string]string)
     ret[who[:1]] = who[2:]

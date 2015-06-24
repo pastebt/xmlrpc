@@ -698,7 +698,8 @@ func wrapValue(w io.Writer, val reflect.Value) error {
 	case reflect.Func:
 		isError = true
 	case reflect.Interface:
-		isError = true
+		//isError = true
+        return wrapValue(w, val.Elem())
 	case reflect.Map:
 		//isError = true
 		return wrapMap(w, val)
