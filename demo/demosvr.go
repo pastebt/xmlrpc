@@ -67,10 +67,12 @@ func ddd(in string, cc bool) string {
 
 func main() {
     h := gxr.NewHandler()
-    h.Register(&SO{"MyName"}, nil, false)
+    s := SO{"MyName"}
+    h.Register(&s, nil, false)
     h.RegFunc(ttt, "", nil)
     h.RegFunc(mmm, "", nil)
     h.RegFunc(ddd, "", gxr.DFT{true})
+    h.RegFunc(s.SayHello, "SayHello2", nil)
     http.Handle("/rpc", h)
     panic(http.ListenAndServe(":2345", nil))
 }

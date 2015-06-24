@@ -127,7 +127,7 @@ const (
 	errInternal      = -32603
 )
 
-var istype = reflect.TypeOf(make([]interface{}, 0))
+//var istype = reflect.TypeOf(make([]interface{}, 0))
 
 // handle an XML-RPC request
 func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
@@ -170,7 +170,9 @@ func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
     if mData.obj != nil { x = 1 }
 
     // flag to support func(...interface{})
-    y := mData.ftype.In(expArgs - 1) == istype
+    //y := mData.ftype.In(expArgs - 1) == istype
+    // IsVariadic
+    y := mData.ftype.IsVariadic()
 
     dl := 0
     if mData.dft != nil { dl = len(mData.dft) }
