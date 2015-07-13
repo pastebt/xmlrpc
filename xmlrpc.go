@@ -479,6 +479,7 @@ func getData(p *xml.Decoder, tok *xmlToken) (interface{}, error) {
 		}
 
 		i, err := strconv.Atoi(valStr)
+		//i, err := strconv.ParseInt(valStr, 10, 0)     // not sure which is right
 		if err != nil {
 			return nil, err
 		}
