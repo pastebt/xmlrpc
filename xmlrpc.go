@@ -506,6 +506,9 @@ func getData(p *xml.Decoder, tok *xmlToken) (interface{}, error) {
 
 // Translate an XML stream into a local data object
 func Unmarshal(r io.Reader) (string, interface{}, error, *Fault) {
+    if r == nil {
+        return "", nil, fmt.Errorf("reader is nil"), nil
+    }
 	p := xml.NewDecoder(r)
 
 	var methodName string
