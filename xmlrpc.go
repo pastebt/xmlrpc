@@ -15,6 +15,14 @@ import (
 	"time"
 )
 
+
+// python list, a list can have different type item
+type LIST []interface{}
+
+// python dict, a map can have different type value
+type DICT map[string]interface{}
+
+
 // A Fault represents an error or exception in the procedure call
 // being run on the remote machine
 type Fault struct {
