@@ -98,6 +98,7 @@ func (h *Handler) RegFunc(f interface{}, name string, dft DFT) error {
     if name == "" {
         // runtime.FuncForPC always return pkg.func_name, so we cut prefix "main."
         //name = runtime.FuncForPC(vo.Pointer()).Name()[5:]
+        // But when go test, this prefix will be different, so we need LastIndex
         s := runtime.FuncForPC(vo.Pointer()).Name()
         i := strings.LastIndexByte(s, '.')
         if i < 0 {
