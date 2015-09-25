@@ -39,6 +39,16 @@ func NewHandler() *Handler {
 	return h
 }
 
+
+// help for debug
+func (h *Handler)GetMethodList() (ks []string) {
+    ks = make([]string, 0, 10)
+    for k, _ := range h.methods {
+        ks = append(ks, k)
+    }
+    return
+}
+
 func (h *Handler)SetLogf(logf func(*http.Request, int, string)) {
     h.logf = logf
 }
@@ -87,7 +97,14 @@ func (h *Handler) RegFunc(f interface{}, name string, dft DFT) error {
     md := &methodData{obj: nil, ftype: vo.Type(), fvalue: vo, dft: dft}
     if name == "" {
         // runtime.FuncForPC always return pkg.func_name, so we cut prefix "main."
-        name = runtime.FuncForPC(vo.Pointer()).Name()[5:]
+        //name = runtime.FuncForPC(vo.Pointer()).Name()[5:]
+        s := runtime.FuncForPC(vo.Pointer()).Name()
+        i := strings.LastIndexByte(s, '.')
+        if i < 0 {
+            name = s
+        } else {
+            name = s[i + 1:]
+        }
     }
     h.methods[name] = md
     return nil
