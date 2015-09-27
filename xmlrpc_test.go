@@ -469,3 +469,13 @@ func TestParseResponseStruct(t *testing.T) {
 	}
 	wrapAndParse(t, "", structMap)
 }
+
+
+func TestNewFault(tst *testing.T) {
+    f := NewFault(123, "fault 123")
+    tst.Logf("fault = %v", f.String())
+    f = nil
+    if f.String() != "NilFault" {
+        tst.Errorf("miss NilFault")
+    }
+}

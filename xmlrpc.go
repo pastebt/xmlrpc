@@ -1,18 +1,18 @@
 package xmlrpc
 
 import (
-	"bytes"
-	"encoding/xml"
-	"errors"
-	"fmt"
-	"io"
-    //"os"
-	"net/http"
-	"net/url"
-	"reflect"
-	"strconv"
-	"strings"
-	"time"
+    "io"
+//    "os"  
+    "fmt"
+    "time"
+    "bytes"
+    "errors"
+    "reflect"
+    "strconv"
+    "strings"
+    "net/url"
+    "net/http"
+    "encoding/xml"
 )
 
 
@@ -45,10 +45,10 @@ func (f *Fault) String() string {
 func extractParams(v []interface{}) interface{} {
 	if len(v) == 0 {
 		return nil
-	} else if len(v) == 1 {
+    }
+	if len(v) == 1 {
 		return v[0]
 	}
-
 	return v
 }
 
