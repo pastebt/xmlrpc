@@ -479,3 +479,12 @@ func TestNewFault(tst *testing.T) {
         tst.Errorf("miss NilFault")
     }
 }
+
+
+func TestUnmarshal(tst *testing.T) {
+    r := bytes.NewBufferString("abc</methodName>")
+    s, i, e, f := Unmarshal(r)
+    tst.Logf("%v %v %v %v", s, i, e, f)
+    r = nil
+    //Unmarshal(r)
+}
