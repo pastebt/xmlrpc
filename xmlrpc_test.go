@@ -1,12 +1,15 @@
 package xmlrpc
 
 import (
-	"bytes"
+	"testing"
+//	"testing/iotest"
+
+//    "io"
 	"fmt"
+	"time"
+	"bytes"
 	"reflect"
 	"strings"
-	"testing"
-	"time"
 	"encoding/xml"
 )
 
@@ -483,8 +486,48 @@ func TestNewFault(tst *testing.T) {
 
 func TestUnmarshal(tst *testing.T) {
     r := bytes.NewBufferString("abc</methodName>")
+    //R := iotest.DataErrReader(r)
     s, i, e, f := Unmarshal(r)
     tst.Logf("%v %v %v %v", s, i, e, f)
-    r = nil
-    //Unmarshal(r)
+    //r = nil
+    Unmarshal(nil)
 }
+
+
+//func TestGetArray(tst *testing.T) {
+//    r := bytes.NewBufferString("abc</methodName>")
+//    d := xml.NewDecoder(r)
+//    getArray(d)
+//}
+
+
+func TestMarshal1(tst *testing.T) {
+    w := bytes.NewBuffer([]byte(""))
+    e := Marshal(w, "fname", 1, "str", make(map[string]string))
+    tst.Logf("%v", e)
+    //r = nil
+    //Unmarshal(nil)
+}
+
+
+type S struct {
+    u uint
+    s string
+}
+
+func TestMarshal2(tst *testing.T) {
+    w := bytes.NewBuffer([]byte(""))
+    m := make(map[string]string)
+    m["k"] = "v"
+    s := S{0, "1"}
+    e := Marshal(w, "fname", 1, "str", 1.1, m, s, []string{"a", "b"})
+    tst.Logf("%v", e)
+    m2 := make(map[int]string)
+    m2[1] = "2"
+    e = Marshal(w, "fname2", m2)
+    //r = nil
+    //Unmarshal(nil)
+}
+
+
+
