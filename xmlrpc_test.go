@@ -520,14 +520,22 @@ func TestMarshal2(tst *testing.T) {
     m := make(map[string]string)
     m["k"] = "v"
     s := S{0, "1"}
-    e := Marshal(w, "fname", 1, "str", 1.1, m, s, []string{"a", "b"})
+    var a [2]int
+    a[0] = 1
+    a[1] = 2
+    e := Marshal(w, "fname", 1, "str", 1.1, m, s, []string{"a", "b"}, a)
     tst.Logf("%v", e)
     m2 := make(map[int]string)
     m2[1] = "2"
     e = Marshal(w, "fname2", m2)
     //r = nil
-    //Unmarshal(nil)
+    Unmarshal(w)
 }
 
+
+func TestNewClient(tst *testing.T) {
+    c, e := NewClient("127.0.0.1", 1234)
+    tst.Logf("c = %v, e = %v", c, e)
+}
 
 
