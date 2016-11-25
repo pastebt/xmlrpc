@@ -779,23 +779,25 @@ func marshalArray(w io.Writer, methodName string, args []interface{}) error {
 	return nil
 }
 
+
 // XML-RPC client data
 type Client struct {
 	http.Client
 	urlStr string
 }
 
-// connect to a remote XML-RPC server
-func NewClient(host string, port int) (*Client, error) {
-	address := fmt.Sprintf("http://%s:%d/RPC2", host, port)
 
+// connect to a remote XML-RPC server
+//func NewClient(host string, port int) (*Client, error) {
+//    address := fmt.Sprintf("http://%s:%d/RPC2", host, port)
+func NewClient(address string) (*Client, error) {
 	uurl, uerr := url.Parse(address)
 	if uerr != nil {
 		return nil, uerr
 	}
-
 	return &Client{urlStr: uurl.String()}, nil
 }
+
 
 // call a procedure on a remote XML-RPC server
 func (c *Client) RPCCall(methodName string,
