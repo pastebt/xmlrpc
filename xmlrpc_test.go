@@ -534,7 +534,7 @@ func TestMarshal2(tst *testing.T) {
 
 
 func TestNewClient(tst *testing.T) {
-    c, e := NewClient("127.0.0.1", 1234)
+    c, e := NewClient("http://127.0.0.1:1234/RPC2")
     tst.Logf("c = %v, e = %v", c, e)
 }
 

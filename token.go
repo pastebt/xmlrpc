@@ -70,6 +70,12 @@ func initTokenMap() {
 	tokenMap["value"] = tokenValue
 }
 
+
+func init() {
+    initTokenMap()
+}
+
+
 type xmlToken struct {
 	token   int
 	isStart bool
@@ -153,9 +159,12 @@ func getNextToken(p *xml.Decoder) (*xmlToken, error) {
 		return nil, err
 	}
 
-	if tokenMap == nil {
-		initTokenMap()
-	}
+    // cano not do this, in multiple thread, this may cause
+    // fatal error: concurrent map read and map write
+    // move this to package init
+	//if tokenMap == nil {
+	//	initTokenMap()
+	//}
 
 	switch v := tag.(type) {
 	case xml.StartElement:
