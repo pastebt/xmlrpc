@@ -121,9 +121,9 @@ func parseAndCheck(t *testing.T, methodName string, expVal interface{},
 
 	if name != methodName {
 		if methodName == "" {
-			t.Fatal("Did not expect method name \"%s\"", name)
+			t.Fatalf("Did not expect method name \"%s\"", name)
 		} else {
-			t.Fatal("Expected method name \"%s\", not \"%s\"", methodName, name)
+			t.Fatalf("Expected method name \"%s\", not \"%s\"", methodName, name)
 		}
 	}
 
@@ -160,9 +160,9 @@ func parseUnimplemented(t *testing.T, methodName string, expVal interface{}) {
 
 	if name != methodName {
 		if methodName == "" {
-			t.Fatal("Did not expect method name \"%s\"", name)
+			t.Fatalf("Did not expect method name \"%s\"", name)
 		} else {
-			t.Fatal("Expected method name \"%s\", not \"%s\"", methodName, name)
+			t.Fatalf("Expected method name \"%s\", not \"%s\"", methodName, name)
 		}
 	}
 
