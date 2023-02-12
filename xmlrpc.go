@@ -131,8 +131,9 @@ func getMethodData(p *xml.Decoder) ([]interface{}, *Fault, error) {
 		} else if inParams {
 			if tok.Is(tokenParam) {
 				inParam = tok.IsStart()
-				continue
-			} else if inParam {
+			//	continue
+			//} else if inParam {
+                if ! inParam { continue }
 				p, perr := getValue(p)
 				if perr != nil {
 					return nil, nil, perr
@@ -140,6 +141,7 @@ func getMethodData(p *xml.Decoder) ([]interface{}, *Fault, error) {
 
 				params = append(params, p)
 				inParam = false
+                continue
 			}
 		}
 

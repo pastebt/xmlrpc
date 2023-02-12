@@ -5,7 +5,7 @@ import (
 	"io"
 	"fmt"
 	"bytes"
-	//"io/ioutil"
+	"io/ioutil"
     "runtime"
 	"reflect"
 	"strings"
@@ -217,8 +217,12 @@ func (mData *methodData)getVals(methodName string, args []interface{}, req *http
 
 // handle an XML-RPC request
 func (h *Handler) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
+    b, _ := ioutil.ReadAll(req.Body)
+    body := string(b)
+    if h.logf != nil { h.logf(req, 0, body) }
+    methodName, params, err, fault := UnmarshalString(body)
+    //methodName, params, err, fault := Unmarshal(req.Body)
 
-    methodName, params, err, fault := Unmarshal(req.Body)
     if err != nil {
         msg := fmt.Sprintf("Unmarshal error: %v", err)
         writeFault(resp, errNotWellFormed, msg)

@@ -539,3 +539,48 @@ func TestNewClient(tst *testing.T) {
 }
 
 
+func TestParseCall(t *testing.T) {
+	xmlStr := `<?xml version="1.0"?>
+<methodCall>
+<methodName>submit_url</methodName>
+<params>
+<param>
+<value>game.com</value>
+</param>
+</params>
+</methodCall>`
+	parseAndCheck(t, "submit_url", "game.com", xmlStr)
+	xmlStr = `<?xml version="1.0"?>
+<methodCall>
+<methodName>submit_url</methodName>
+<params>
+<param>
+<value><string>game.com</string></value>
+</param>
+</params>
+</methodCall>`
+	parseAndCheck(t, "submit_url", "game.com", xmlStr)
+
+	xmlStr = `<?xml version="1.0"?>
+<methodCall>
+<methodName>submit_url</methodName>
+<params>
+<param>
+<value><boolean>0</boolean></value>
+</param>
+</params>
+</methodCall>`
+	parseAndCheck(t, "submit_url", false, xmlStr)
+}
+
+
+func TestParseCallNewLine(t *testing.T) {
+	xmlStr := `<?xml version="1.0"?><methodCall><methodName>submit_url</methodName><params><param><value><boolean>0</boolean></value></param></params></methodCall>`
+	parseAndCheck(t, "submit_url", false, xmlStr)
+	xmlStr = `<?xml version="1.0"?><methodCall><methodName>submit_url</methodName><params><param>
+<value><boolean>0</boolean></value></param></params></methodCall>`
+	parseAndCheck(t, "submit_url", false, xmlStr)
+
+}
+
+
